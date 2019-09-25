@@ -29,6 +29,7 @@ const mutations = {
   },
   SET_SIZE: (state, size) => {
     state.size = size
+    console.log(size)
     Cookies.set('size', size)
   }
 }
