@@ -337,10 +337,10 @@ export const asyncRoutes = [
         hidden: true
       },
       {
-        path: 'list',
+        path: 'product.js',
         component: 'views/example/list',
         name: 'ArticleList',
-        meta: { title: 'Article List', icon: 'list' }
+        meta: { title: 'Article List', icon: 'product.js' }
       }
     ]
   },
