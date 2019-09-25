@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-
+import miniProgramRoutes from './modules/mini-program'
 Vue.use(Router)
 
 /* Layout */
@@ -67,19 +67,6 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: '/',
-    component: Layout,
-    redirect: '/home',
-    children: [
-      {
-        path: 'home',
-        component: () => import('@/views/home/index'),
-        name: 'home',
-        meta: { title: 'home', icon: 'dashboard', affix: true }
-      }
-    ]
-  },
-  {
     path: '/profile',
     component: Layout,
     redirect: '/profile/index',
@@ -100,6 +87,7 @@ export const constantRoutes = [
  * the routes that need to be dynamically loaded based on user roles
  */
 export const asyncRoutes = [
+  ...miniProgramRoutes,
   /** when your routing map is too long, you can split it into small modules **/
   // componentsRouter,
   // 404 page must be placed at the end !!!
