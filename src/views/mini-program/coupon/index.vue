@@ -1,24 +1,177 @@
 <template>
-  <div class="dashboard-container">
-    111
+  <div class="tab-container">
+    <div class="filter-container">
+      <el-input
+        v-model="listQuery.title"
+        placeholder="Title"
+        style="width: 200px;"
+        class="filter-item"
+        @keyup.enter.native="handleFilter"
+      />
+      <el-button
+        v-waves
+        class="filter-item"
+        type="primary"
+        icon="el-icon-search"
+        @click="handleFilter"
+      >搜索</el-button>
+      <el-button
+        class="filter-item"
+        style="margin-left: 10px;"
+        type="primary"
+        icon="el-icon-edit"
+        @click="handleCreate"
+      >添加</el-button>
+    </div>
+    <el-table
+      v-loading="listLoading"
+      :data="list"
+      border
+      fit
+      highlight-current-row
+      style="width: 100%"
+    >
+      <el-table-column align="center" label="优惠券图片">
+        <template slot-scope="scope" style="width: 100px; height: 100px">
+          <img :src="scope.row.imageUrl" class="image-small">
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="优惠券名称">
+        <template slot-scope="scope">
+          <span>{{ scope.row.couponName }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="优惠券ID">
+        <template slot-scope="scope">
+          <span>{{ scope.row.couponId }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="优惠券类型">
+        <template slot-scope="scope">
+          <span>{{ scope.row.couponType | filterCouponTypeName }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="是否启用">
+        <template slot-scope="scope">
+          <span>{{ scope.row.isValid?"启用":"禁用" }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="更新日期">
+        <template slot-scope="scope">
+          <span>{{ scope.row.updateTime | formatDate }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="创建时间">
+        <template slot-scope="scope">
+          <span>{{ scope.row.updateTime | formatDate }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="250" align="center">
+        <template slot-scope="scope">
+          <el-button type="primary" size="small" @click.native.prevent="editRow(scope.row)">编辑</el-button>
+          <!-- <el-button type="primary" size="small" @click.native.prevent="approveRow(scope.row.productId)" v-if="scope.row.productStatus.statusId==0">审核</el-button> -->
+          <!-- <el-button type="primary" size="small" @click.native.prevent="offShop(scope.row.productId)" v-if="scope.row.productStatus.statusId==1">下架</el-button> -->
+          <el-button type="danger" size="small" @click.native.prevent="disableRow(scope.row)">禁用</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <div class="block">
+      <el-pagination
+        :current-page.sync="currentPage"
+        :page-size="100"
+        layout="prev, pager, next, jumper"
+        :total="1000"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
+    </div>
+
+    <el-dialog title="优惠券配置" :visible.sync="editDialogVisible">
+      <el-form :model="curCouponItem">
+        <span>新增优惠券的内容</span>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button size="small" @click="editDialogVisible = false">取 消</el-button>
+        <el-button
+          size="small"
+          type="primary"
+          @click="addOrEditCoupon"
+        >{{ isAddCoupon?'新 增':'确 定' }}</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-
+import { queryList } from '@/api/mini-program/coupon'
+import { parseTime } from '@/utils/index.js'
 export default {
-  name: 'Home',
-  data() {
-    return {
+  name: 'Coupon',
+  filters: {
+    formatDate(time) {
+      var date = new Date(time)
+      return parseTime(date)
+    },
+    filterCouponTypeName(couponType) {
+      switch (couponType) {
+        case 'MALL':
+          return '好品质商城'
+        case 'FOLIDAY':
+          return '复游旅行'
+        case 'FHOTO':
+          return '复游拍'
+      }
     }
   },
-  computed: {
-    ...mapGetters([
-      'roles'
-    ])
+  data() {
+    return {
+      editDialogVisible: false,
+      listLoading: false,
+      isAddCoupon: true,
+      list: [],
+      listQuery: {
+        title: ''
+      },
+      activeName: 'CN',
+      createdTimes: 0,
+      currentPage: 1,
+      curCouponItem: {}
+    }
   },
+  watch: {},
   created() {
+    this.getList()
+  },
+  methods: {
+    handleFilter() {},
+    handleCreate() {},
+    handleSizeChange() {},
+    handleCurrentChange() {},
+    getList() {
+      queryList({
+        pageNo: 1,
+        pageSize: 10
+      }).then(data => {
+        this.list = data.data.list
+      })
+    },
+    editRow() {
+      this.editDialogVisible = true
+    },
+    disableRow() {
+      this.editDialogVisible = true
+    },
+    addOrEditCoupon() {}
   }
 }
 </script>
+
+<style scoped>
+.tab-container {
+  margin: 30px;
+}
+.image-small {
+  width: 150px;
+  height: 80px;
+}
+</style>
