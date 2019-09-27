@@ -7,3 +7,19 @@ export function queryBannerInfos(data) {
     data
   })
 }
+
+export function updateBannerInfo(data) {
+  return request({
+    url: '/bannerInfo/updateBannerInfo',
+    method: 'post',
+    data
+  })
+}
+
+export function saveBannerInfo(data) {
+  return request({
+    url: '/bannerInfo/saveBannerInfo',
+    method: 'post',
+    data
+  })
+}
