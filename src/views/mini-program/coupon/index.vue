@@ -88,7 +88,30 @@
 
     <el-dialog title="优惠券配置" :visible.sync="editDialogVisible">
       <el-form :model="curCouponItem">
-        <span>新增优惠券的内容</span>
+        <el-form-item v-if="!isAddCoupon" label="优惠券ID" :label-width="formLabelWidth">
+          <el-input v-model="curCouponItem.id" autocomplete="off" :disabled="!isAddCoupon" />
+        </el-form-item>
+        <el-form-item label="优惠类型" :label-width="formLabelWidth">
+          <el-select v-model="curCouponItem.couponTypeId" placeholder="请选择优惠类型">
+            <el-option
+              v-for="item in couponTypeSelects"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="优惠券名称" :label-width="formLabelWidth">
+          <el-input v-model="curCouponItem.remarks" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="优惠券图片">
+          <pictureupload
+            :img-list="pictures"
+            :limit="1"
+            @uploadimg="uploadCouponPicture"
+            @removeimg="uploadPictureRemove"
+          />
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button size="small" @click="editDialogVisible = false">取 消</el-button>
@@ -105,8 +128,12 @@
 <script>
 import { queryList } from '@/api/mini-program/coupon'
 import { parseTime } from '@/utils/index.js'
+import pictureupload from '@/components/PictureUpload'
 export default {
   name: 'Coupon',
+  components: {
+    pictureupload
+  },
   filters: {
     formatDate(time) {
       var date = new Date(time)
@@ -135,7 +162,24 @@ export default {
       activeName: 'CN',
       createdTimes: 0,
       currentPage: 1,
-      curCouponItem: {}
+      curCouponItem: {},
+      formLabelWidth: '120px',
+      couponTypeSelects: [
+        {
+          value: 'MALL',
+          label: '好品质商城'
+        },
+        {
+          value: 'FOLIDAY',
+          label: '复游旅行'
+        },
+        {
+          value: 'FHOTO',
+          label: '复游拍'
+        }
+      ],
+      pictures: []
+
     }
   },
   watch: {},
@@ -161,7 +205,9 @@ export default {
     disableRow() {
       this.editDialogVisible = true
     },
-    addOrEditCoupon() {}
+    addOrEditCoupon() {},
+    uploadCouponPicture() {},
+    uploadPictureRemove() {}
   }
 }
 </script>

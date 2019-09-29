@@ -12,8 +12,7 @@ const tableRouter = [
         path: 'app-config',
         component: () => import('@/views/mini-program/app-config/index'),
         name: 'app-config',
-        icon: 'table',
-        meta: { title: '全局配置' }
+        meta: { icon: 'qq', title: '全局配置' }
       }
     ]
   },
@@ -25,8 +24,7 @@ const tableRouter = [
         path: 'index',
         component: () => import('@/views/mini-program/banner/index'),
         name: 'banner',
-        icon: 'table',
-        meta: { title: 'Banner' }
+        meta: { icon: 'table', title: 'Banner' }
       }
     ]
   },
@@ -39,7 +37,7 @@ const tableRouter = [
         component: () => import('@/views/mini-program/product/index'),
         name: 'product',
         icon: 'table',
-        meta: { title: '商品' }
+        meta: { icon: 'table', title: '商品' }
       }
     ]
   },
@@ -51,8 +49,7 @@ const tableRouter = [
         path: 'index',
         component: () => import('@/views/mini-program/facility/index'),
         name: 'facility',
-        icon: 'table',
-        meta: { title: '设施' }
+        meta: { icon: 'star', title: '设施' }
       }
     ]
   },
@@ -64,8 +61,7 @@ const tableRouter = [
         path: 'index',
         component: () => import('@/views/mini-program/hotel-room/index'),
         name: 'hotel-room',
-        icon: 'table',
-        meta: { title: '酒店客房' }
+        meta: { icon: 'star', title: '酒店客房' }
       }
     ]
   },
@@ -77,8 +73,7 @@ const tableRouter = [
         path: 'index',
         component: () => import('@/views/mini-program/map/index'),
         name: 'map',
-        icon: 'table',
-        meta: { title: '地图数据' }
+        meta: { icon: 'message', title: '地图数据' }
       }
     ]
   },
@@ -90,8 +85,7 @@ const tableRouter = [
         path: 'index',
         component: () => import('@/views/mini-program/users/index'),
         name: 'users',
-        icon: 'table',
-        meta: { title: '用户' }
+        meta: { icon: 'user', title: '用户' }
       }
     ]
   },
@@ -103,8 +97,10 @@ const tableRouter = [
         path: 'index',
         component: () => import('@/views/mini-program/coupon/index'),
         name: 'coupon',
-        icon: 'table',
-        meta: { title: '优惠券' }
+        meta: {
+          icon: 'money',
+          title: '优惠券'
+        }
       }
     ]
   },
@@ -116,8 +112,10 @@ const tableRouter = [
         path: 'index',
         component: () => import('@/views/mini-program/activity/index'),
         name: 'activity',
-        icon: 'table',
-        meta: { title: '活动' }
+        meta: {
+          title: '活动',
+          icon: 'shopping'
+        }
       }
     ]
   }
