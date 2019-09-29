@@ -14,17 +14,17 @@ export function queryItem(id) {
   })
 }
 
-export function updateItem(data) {
+export function editCoupon(data) {
   return request({
-    url: '/product/updateProductInfo',
+    url: '/coupon/update',
     method: 'post',
     data
   })
 }
 
-export function addItem(data) {
+export function addCoupon(data) {
   return request({
-    url: '/product/saveProductInfo',
+    url: '/coupon/add',
     method: 'post',
     data
   })

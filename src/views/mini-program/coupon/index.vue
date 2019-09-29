@@ -8,13 +8,7 @@
         class="filter-item"
         @keyup.enter.native="handleFilter"
       />
-      <el-button
-        v-waves
-        class="filter-item"
-        type="primary"
-        icon="el-icon-search"
-        @click="handleFilter"
-      >搜索</el-button>
+      <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
       <el-button
         class="filter-item"
         style="margin-left: 10px;"
@@ -92,7 +86,7 @@
           <el-input v-model="curCouponItem.id" autocomplete="off" :disabled="!isAddCoupon" />
         </el-form-item>
         <el-form-item label="优惠类型" :label-width="formLabelWidth">
-          <el-select v-model="curCouponItem.couponTypeId" placeholder="请选择优惠类型">
+          <el-select v-model="curCouponItem.couponType" placeholder="请选择优惠类型">
             <el-option
               v-for="item in couponTypeSelects"
               :key="item.value"
@@ -102,11 +96,11 @@
           </el-select>
         </el-form-item>
         <el-form-item label="优惠券名称" :label-width="formLabelWidth">
-          <el-input v-model="curCouponItem.remarks" autocomplete="off" />
+          <el-input v-model="curCouponItem.couponName" autocomplete="off" />
         </el-form-item>
-        <el-form-item label="优惠券图片">
+        <el-form-item label="优惠券图片" :label-width="formLabelWidth">
           <pictureupload
-            :img-list="pictures"
+            :img-list="couponPics"
             :limit="1"
             @uploadimg="uploadCouponPicture"
             @removeimg="uploadPictureRemove"
@@ -126,7 +120,7 @@
 </template>
 
 <script>
-import { queryList } from '@/api/mini-program/coupon'
+import { queryList, editCoupon, addCoupon } from '@/api/mini-program/coupon'
 import { parseTime } from '@/utils/index.js'
 import pictureupload from '@/components/PictureUpload'
 export default {
@@ -178,8 +172,7 @@ export default {
           label: '复游拍'
         }
       ],
-      pictures: []
-
+      couponPics: []
     }
   },
   watch: {},
@@ -188,7 +181,10 @@ export default {
   },
   methods: {
     handleFilter() {},
-    handleCreate() {},
+    handleCreate() {
+      this.isAddCoupon = true
+      this.editDialogVisible = true
+    },
     handleSizeChange() {},
     handleCurrentChange() {},
     getList() {
@@ -199,13 +195,30 @@ export default {
         this.list = data.data.list
       })
     },
-    editRow() {
+    editRow(couponItem) {
       this.editDialogVisible = true
+      this.isAddCoupon = false
+      this.curCouponItem = couponItem
+      console.log('点击了编辑按钮')
+      console.log(this.curCouponItem)
+      this.couponPics = []
+      this.couponPics.push(this.curCouponItem.imageUrl)
     },
     disableRow() {
       this.editDialogVisible = true
     },
-    addOrEditCoupon() {},
+    addOrEditCoupon() {
+      if (this.isAddCoupon) {
+        addCoupon(this.curCouponItem).then(data => {
+          postMessage('添加成功')
+        })
+      } else {
+        editCoupon(this.curCouponItem).then(data => {
+          postMessage('修改成功')
+        })
+      }
+      this.editDialogVisible = false
+    },
     uploadCouponPicture() {},
     uploadPictureRemove() {}
   }
