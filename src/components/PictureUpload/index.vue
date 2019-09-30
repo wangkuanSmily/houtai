@@ -44,18 +44,14 @@ export default {
     return {
       fileList: [],
       upLoadData: {
-        img: ''
+        file: ''
       },
-      baseUrl: process.env.BASE_API + '/file/uploadFile',
+      baseUrl: process.env.VUE_APP_ADMIN_API + '/adminapi/file/uploadFile?path=coupon-server',
       dialogVisible: false,
       dialogImageUrl: ''
-      //             headers: {
-      //                 Authorization: store.getters.token_type + " " + store.getters.token
-      //             } // 接口调用token
     }
   },
   watch: {
-    // 监听imgList的变化： fileList要求的格式为[{url: img}],所以监听imgList变化后将其进行处理，赋值给fileList
     imgList: {
       handler(newValue, oldValue) {
         console.log('PictureUpload imgList变化了=====>')
@@ -67,7 +63,7 @@ export default {
           return
         }
         for (let i = 0; i < newValue.length; i++) {
-          if (oldValue[i] != newValue[i]) {
+          if (oldValue[i] !== newValue[i]) {
             this.fileList = []
             newValue.forEach(el => {
               this.fileList.push({ url: el })
@@ -80,21 +76,22 @@ export default {
     },
     img: {
       handler(newValue, oldValue) {
-        if (newValue != '' && newValue.length > 0) {
-          (this.fileList = []), this.fileList.push({ url: newValue })
+        if (newValue !== '' && newValue.length > 0) {
+          this.fileList = []
+          this.fileList.push({ url: newValue })
         }
       }
     }
   },
   mounted() {
-    if (this.imgList.length != 0) {
+    if (this.imgList.length !== 0) {
       this.imgList.forEach(el => {
         this.fileList.push({ url: el })
       })
     }
   },
   methods: {
-    // 图片移除时处理数据
+    // 图片移除时处理数据
     handleRemove(file, fileList) {
       const item = []
       fileList.forEach(el => {
@@ -105,7 +102,7 @@ export default {
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url
       this.dialogVisible = true
-    }, // 判断图片数量
+    }, // 判断图片数量
     handleExceed(files, fileList) {
       this.$message.warning(
         `当前限制选择 ${this.limit} 个文件，本次选择了 ${
@@ -113,11 +110,11 @@ export default {
         } 个文件，共选择了 ${files.length + fileList.length} 个文件`
       )
     },
-    beforeRemove(file, fileList) {}, // 上传图片成功事件
+    beforeRemove(file, fileList) {}, // 上传图片成功事件
     upLoadSuccess(response) {
       console.log('子控件上传成功=========>')
       console.log(response)
-      this.$emit('uploadimg', response.data.imageUrl)
+      this.$emit('uploadimg', response.data.data.imageUrl)
       this.$message('上传成功')
     }
   }

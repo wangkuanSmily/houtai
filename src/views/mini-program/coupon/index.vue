@@ -60,21 +60,25 @@
           <span>{{ scope.row.updateTime | formatDate }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="250" align="center">
+      <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
           <el-button type="primary" size="small" @click.native.prevent="editRow(scope.row)">编辑</el-button>
           <!-- <el-button type="primary" size="small" @click.native.prevent="approveRow(scope.row.productId)" v-if="scope.row.productStatus.statusId==0">审核</el-button> -->
           <!-- <el-button type="primary" size="small" @click.native.prevent="offShop(scope.row.productId)" v-if="scope.row.productStatus.statusId==1">下架</el-button> -->
-          <el-button type="danger" size="small" @click.native.prevent="disableRow(scope.row)">禁用</el-button>
+          <el-button
+            type="danger"
+            size="small"
+            @click.native.prevent="disableRow(scope.row)"
+          >{{ scope.row.isValid?'禁用':'启用' }}</el-button>
         </template>
       </el-table-column>
     </el-table>
     <div class="block">
       <el-pagination
         :current-page.sync="currentPage"
-        :page-size="100"
+        :page-size="10"
         layout="prev, pager, next, jumper"
-        :total="1000"
+        :total="listResult.total"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       />
@@ -82,7 +86,7 @@
 
     <el-dialog title="优惠券配置" :visible.sync="editDialogVisible">
       <el-form :model="curCouponItem">
-        <el-form-item v-if="!isAddCoupon" label="优惠券ID" :label-width="formLabelWidth">
+        <el-form-item v-if="!isAddCoupon" label="id" :label-width="formLabelWidth">
           <el-input v-model="curCouponItem.id" autocomplete="off" :disabled="!isAddCoupon" />
         </el-form-item>
         <el-form-item label="优惠类型" :label-width="formLabelWidth">
@@ -97,6 +101,16 @@
         </el-form-item>
         <el-form-item label="优惠券名称" :label-width="formLabelWidth">
           <el-input v-model="curCouponItem.couponName" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="优惠券ID" :label-width="formLabelWidth">
+          <el-input v-model="curCouponItem.couponId" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="是否启用" :label-width="formLabelWidth">
+          <el-switch
+            v-model="curCouponItem.isValid"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          />
         </el-form-item>
         <el-form-item label="优惠券图片" :label-width="formLabelWidth">
           <pictureupload
@@ -156,7 +170,13 @@ export default {
       activeName: 'CN',
       createdTimes: 0,
       currentPage: 1,
-      curCouponItem: {},
+      curCouponItem: {
+        couponType: 'MALL',
+        couponName: '',
+        couponId: '',
+        imageUrl: '',
+        isValid: true
+      },
       formLabelWidth: '120px',
       couponTypeSelects: [
         {
@@ -172,7 +192,8 @@ export default {
           label: '复游拍'
         }
       ],
-      couponPics: []
+      couponPics: [],
+      listResult: {}
     }
   },
   watch: {},
@@ -184,15 +205,21 @@ export default {
     handleCreate() {
       this.isAddCoupon = true
       this.editDialogVisible = true
+      this.curCouponItem = {}
+      this.curCouponItem.isValid = false
+      console.log(JSON.stringify(this.curCouponItem))
     },
     handleSizeChange() {},
-    handleCurrentChange() {},
+    handleCurrentChange() {
+      this.getList()
+    },
     getList() {
       queryList({
-        pageNo: 1,
+        pageNo: this.currentPage,
         pageSize: 10
       }).then(data => {
         this.list = data.data.list
+        this.listResult = data.data
       })
     },
     editRow(couponItem) {
@@ -204,23 +231,47 @@ export default {
       this.couponPics = []
       this.couponPics.push(this.curCouponItem.imageUrl)
     },
-    disableRow() {
-      this.editDialogVisible = true
+    disableRow(item) {
+      this.curCouponItem = item
+      this.$confirm(
+        this.curCouponItem.isValid
+          ? '确定要禁用此条数据吗?'
+          : '确定要启用此条数据吗？',
+        '提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      )
+        .then(() => {
+          this.curCouponItem.isValid = !this.curCouponItem.isValid
+          this.isAddCoupon = false
+          this.addOrEditCoupon()
+        })
+        .catch(() => {})
     },
     addOrEditCoupon() {
+      console.log(JSON.stringify(this.curCouponItem))
       if (this.isAddCoupon) {
         addCoupon(this.curCouponItem).then(data => {
           postMessage('添加成功')
+          this.getList()
         })
       } else {
         editCoupon(this.curCouponItem).then(data => {
           postMessage('修改成功')
+          this.getList()
         })
       }
       this.editDialogVisible = false
     },
-    uploadCouponPicture() {},
-    uploadPictureRemove() {}
+    uploadCouponPicture(item) {
+      this.curCouponItem.imageUrl = item
+    },
+    uploadPictureRemove(item) {
+      this.curCouponItem.imageUrl = ''
+    }
   }
 }
 </script>
