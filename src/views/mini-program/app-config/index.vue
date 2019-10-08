@@ -42,8 +42,8 @@
       </el-table-column>
       <el-table-column align="center" label="配置值">
         <template slot-scope="scope" style="width: 100px; height: 100px">
-          <img v-if="scope.row.keyType==='URL'" :src="scope.row.value" class="image-small">
-          <span v-if="!(scope.row.keyType==='URL')">{{ scope.row.value }}</span>
+          <!-- <img v-if="scope.row.keyType==='URL'" :src="scope.row.value" class="image-small"> -->
+          <span>{{ scope.row.value }}</span>
         </template>
         <!-- <template v-if="!(scope.row.keyType=='URL')" slot-scope="scope">
           <span>{{ scope.row.value }}</span>
@@ -73,6 +73,9 @@
 
     <el-dialog title="全局配置项" :visible.sync="editDialogVisible">
       <el-form :model="configItem">
+        <el-form-item label="配置位置" :label-width="formLabelWidth">
+          <el-input v-model="configItem.key" autocomplete="off" :disabled="true" />
+        </el-form-item>
         <el-form-item label="配置类型" :label-width="formLabelWidth">
           <el-select v-model="configItem.keyType" placeholder="请选择配置类型">
             <el-option
@@ -83,25 +86,13 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="优惠券名称" :label-width="formLabelWidth">
-          <el-input v-model="configItem.couponName" autocomplete="off" />
-        </el-form-item>
-        <el-form-item label="优惠券图片" :label-width="formLabelWidth">
-          <pictureupload
-            :img-list="configPics"
-            :limit="1"
-            @uploadimg="uploadCouponPicture"
-            @removeimg="uploadPictureRemove"
-          />
+        <el-form-item label="配置值" :label-width="formLabelWidth">
+          <el-input v-model="configItem.value" autocomplete="off" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button size="small" @click="editDialogVisible = false">取 消</el-button>
-        <el-button
-          size="small"
-          type="primary"
-          @click="addOrEditCoupon"
-        >{{ isAddCoupon?'新 增':'确 定' }}</el-button>
+        <el-button size="small" type="primary" @click="updateConfigItem">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -110,7 +101,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { parseTime } from '@/utils/index.js'
-import { queryList } from '@/api/mini-program/appconfig'
+import { queryList, updateConfig } from '@/api/mini-program/appconfig'
 
 export default {
   name: 'AppConfig',
@@ -135,6 +126,7 @@ export default {
       editDialogVisible: false,
       listLoading: false,
       currentPage: 1,
+      formLabelWidth: '120px',
       list: [],
       listQuery: {
         title: ''
@@ -143,10 +135,20 @@ export default {
       configPics: [],
       configItem: {},
       configConstants: {
-        'CUSTOMER_PHONE': {
-
+        CUSTOMER_PHONE: {
+          keyType: 'STRING'
         }
-      }
+      },
+      keyTypeSelects: [
+        {
+          value: 'STRING',
+          label: '字符串'
+        },
+        {
+          value: 'URL',
+          label: '图片或网页链接'
+        }
+      ]
     }
   },
   computed: {
@@ -182,6 +184,11 @@ export default {
     },
     uploadPictureRemove(item) {
       this.configItem.imageUrl = ''
+    },
+    updateConfigItem() {
+      updateConfig(this.configItem).then(res => {
+        postMessage('更新成功')
+      })
     }
   }
 }

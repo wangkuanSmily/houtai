@@ -7,24 +7,10 @@ export function queryList(data) {
     data
   })
 }
-export function queryItem(id) {
-  return request({
-    url: '/product/getProductInfo?id=' + id,
-    method: 'get'
-  })
-}
 
-export function editCoupon(data) {
+export function updateConfig(data) {
   return request({
-    url: '/coupon/update',
-    method: 'post',
-    data
-  })
-}
-
-export function addCoupon(data) {
-  return request({
-    url: '/coupon/add',
+    url: '/config/update',
     method: 'post',
     data
   })
