@@ -187,7 +187,9 @@ export default {
     },
     updateConfigItem() {
       updateConfig(this.configItem).then(res => {
+        this.editDialogVisible = false
         postMessage('更新成功')
+        this.getList()
       })
     }
   }

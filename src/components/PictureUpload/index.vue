@@ -38,6 +38,10 @@ export default {
     img: {
       type: String,
       default: ''
+    },
+    imgPath: {
+      type: String,
+      default: 'funat-server'
     }
   },
   data() {
@@ -46,7 +50,10 @@ export default {
       upLoadData: {
         file: ''
       },
-      baseUrl: process.env.VUE_APP_ADMIN_API + '/adminapi/file/uploadFile?path=coupon-server',
+      baseUrl:
+        process.env.VUE_APP_ADMIN_API +
+        'adminapi/file/uploadFile?path=' +
+        this.imgPath,
       dialogVisible: false,
       dialogImageUrl: ''
     }

@@ -164,6 +164,7 @@ export default {
       listLoading: false,
       isAddCoupon: true,
       list: [],
+      listResult: {},
       listQuery: {
         title: ''
       },
@@ -192,8 +193,7 @@ export default {
           label: '复游拍'
         }
       ],
-      couponPics: [],
-      listResult: {}
+      couponPics: []
     }
   },
   watch: {},
