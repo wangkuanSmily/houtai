@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function queryBannerInfos(data) {
+export function queryList(data) {
   return request({
     url: '/bannerInfo/list',
     method: 'post',
@@ -8,7 +8,7 @@ export function queryBannerInfos(data) {
   })
 }
 
-export function updateBannerInfo(data) {
+export function editBanner(data) {
   return request({
     url: '/bannerInfo/update',
     method: 'post',
@@ -16,7 +16,7 @@ export function updateBannerInfo(data) {
   })
 }
 
-export function saveBannerInfo(data) {
+export function addBanner(data) {
   return request({
     url: '/bannerInfo/add',
     method: 'post',

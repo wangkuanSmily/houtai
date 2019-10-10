@@ -2,21 +2,15 @@ import request from '@/utils/request'
 
 export function queryList(data) {
   return request({
-    url: '/product/list',
+    url: '/facilities/list',
     method: 'post',
     data
   })
 }
-export function queryItem(id) {
-  return request({
-    url: '/product/getProductInfo?id=' + id,
-    method: 'get'
-  })
-}
 
-export function updateItem(data) {
+export function editItem(data) {
   return request({
-    url: '/product/update',
+    url: '/facilities/update',
     method: 'post',
     data
   })
@@ -24,7 +18,7 @@ export function updateItem(data) {
 
 export function addItem(data) {
   return request({
-    url: '/product/add',
+    url: '/facilities/add',
     method: 'post',
     data
   })

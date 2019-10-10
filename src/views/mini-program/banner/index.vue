@@ -2,98 +2,120 @@
   <div class="tab-container">
     <div class="filter-container">
       <el-input
-        v-model="listQuery.id"
-        placeholder="banner id"
+        v-model="listQuery.title"
+        placeholder="Title"
         style="width: 200px;"
         class="filter-item"
         @keyup.enter.native="handleFilter"
       />
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
-        添加
-      </el-button>
+      <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
+      <el-button
+        class="filter-item"
+        style="margin-left: 10px;"
+        type="primary"
+        icon="el-icon-edit"
+        @click="handleCreate"
+      >添加</el-button>
     </div>
-    <el-table v-loading="listLoading" :data="bannerInfos" border fit highlight-current-row style="width: 100%">
-      <el-table-column width="180px" align="center" label="图片">
-        <template slot-scope="scope">
-          <img
-            alt=""
-            class="imageUrl"
-            :src="scope.row.imageUrl"
-          >
+    <el-table
+      v-loading="listLoading"
+      :data="list"
+      border
+      fit
+      highlight-current-row
+      style="width: 100%"
+    >
+      <el-table-column align="center" label="Banner图片">
+        <template slot-scope="scope" style="width: 100px; height: 100px">
+          <img :src="scope.row.imageUrl" class="image-small">
         </template>
       </el-table-column>
-      <el-table-column align="center" label="跳转链接">
-        <template slot-scope="scope">
-          <span>{{ scope.row.jumpUrl }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" label="banner Id">
-        <template slot-scope="scope">
-          <span>{{ scope.row.id }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" label="banner名称">
+      <el-table-column align="center" label="BannerName">
         <template slot-scope="scope">
           <span>{{ scope.row.bannerName }}</span>
         </template>
       </el-table-column>
+      <el-table-column align="center" label="跳转链接">
+        <template slot-scope="scope">
+          <el-link :href="scope.row.jumpUrl" target="_blank" type="primary">{{ scope.row.jumpUrl }}</el-link>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="BannerID">
+        <template slot-scope="scope">
+          <span>{{ scope.row.id }}</span>
+        </template>
+      </el-table-column>
       <el-table-column align="center" label="是否启用">
         <template slot-scope="scope">
-          <span>{{ scope.row.isValid }}</span>
+          <span>{{ scope.row.isValid?"启用":"禁用" }}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" label="更新日期">
         <template slot-scope="scope">
-          <span>{{ scope.row.updateTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ scope.row.updateTime | formatDate }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
+      <el-table-column align="center" label="创建时间">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="handleEdit(scope.row)">
-            编辑
-          </el-button>
-          <el-button v-if="scope.row.isValid" size="mini" type="danger" @click="updateBannerInfo(scope.row)">
-            停用
-          </el-button>
-          <el-button v-if="!scope.row.isValid" size="mini" type="primary" @click="updateBannerInfo(scope.row)">
-            启用
-          </el-button>
+          <span>{{ scope.row.updateTime | formatDate }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="200" align="center">
+        <template slot-scope="scope">
+          <el-button type="primary" size="small" @click.native.prevent="editRow(scope.row)">编辑</el-button>
+          <el-button
+            :type="scope.row.isValid ? 'danger' : 'primary'"
+            size="small"
+            @click.native.prevent="updateRow(scope.row)"
+          >{{ scope.row.isValid?'禁用':'启用' }}</el-button>
         </template>
       </el-table-column>
     </el-table>
     <div class="block">
       <el-pagination
-        :current-page.sync="pageNum"
-        :page-size="pageSize"
+        :current-page.sync="currentPage"
+        :page-size="10"
         layout="prev, pager, next, jumper"
-        :total="total"
+        :total="listResult.total"
+        @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       />
     </div>
-    <el-dialog :title="title" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="名称" prop="bannerName">
-          <el-input v-model="temp.bannerName" />
+
+    <el-dialog title="Banner配置" :visible.sync="editDialogVisible">
+      <el-form ref="dataForm" :rules="rules" :model="curBannerItem" label-position="left">
+        <el-form-item v-if="!isAddBanner" label="id" :label-width="formLabelWidth">
+          <el-input v-model="curBannerItem.id" autocomplete="off" :disabled="!isAddBanner" />
         </el-form-item>
-        <el-form-item label="图片链接" prop="imageUrl">
-          <el-input v-model="temp.imageUrl" />
+        <el-form-item label="Banner名称" :label-width="formLabelWidth" prop="bannerName">
+          <el-input v-model="curBannerItem.bannerName" autocomplete="off" />
         </el-form-item>
-        <el-form-item label="跳转链接" prop="jumpUrl">
-          <el-input v-model="temp.jumpUrl" />
+        <!-- <el-form-item label="跳转类型" :label-width="formLabelWidth">
+          <el-input v-model="curBannerItem.jumpUrl" autocomplete="off" />
+        </el-form-item>-->
+        <el-form-item label="跳转链接" :label-width="formLabelWidth" prop="jumpUrl">
+          <el-input v-model="curBannerItem.jumpUrl" autocomplete="off" />
         </el-form-item>
-        <el-form-item label="状态">
-          <el-checkbox v-model="temp.isValid" label="checkbox">
-            启用
-          </el-checkbox>
+        <el-form-item label="是否启用" :label-width="formLabelWidth">
+          <el-switch
+            v-model="curBannerItem.isValid"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          />
+        </el-form-item>
+        <el-form-item label="Banner图片" :label-width="formLabelWidth" prop="imageUrl">
+          <pictureupload
+            :img-list="bannerPics"
+            :limit="1"
+            img-path="bannerServer"
+            @uploadimg="uploadPicture"
+            @removeimg="uploadPictureRemove"
+          />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">
-          取消
-        </el-button>
-        <el-button type="primary" @click="isCreate ? handleAdd() : handleUpdate()">
-          确定
-        </el-button>
+        <el-button size="small" @click="editDialogVisible = false">取 消</el-button>
+        <el-button size="small" type="primary" @click="addOrEditItem">{{ isAddBanner?'新 增':'确 定' }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -101,20 +123,34 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { queryBannerInfos, saveBannerInfo, updateBannerInfo } from '../../../api/mini-program/banner'
-import { parseTime } from '../../../utils'
+import { queryList, editBanner, addBanner } from '@/api/mini-program/banner'
+import { parseTime } from '@/utils/index.js'
+import pictureupload from '@/components/PictureUpload'
 
 export default {
   name: 'Home',
+  filters: {
+    formatDate(time) {
+      var date = new Date(time)
+      return parseTime(date)
+    }
+  },
+  components: {
+    pictureupload
+  },
   data() {
     return {
+      formLabelWidth: '120px',
+      editDialogVisible: false,
       listLoading: false,
-      bannerInfos: [
-      ],
+      isAddBanner: true,
+      currentPage: 1,
+      list: [],
+      listResult: {},
       listQuery: {
         title: ''
       },
-      temp: {
+      curBannerItem: {
         id: undefined,
         bannerName: '',
         isValid: false,
@@ -123,43 +159,93 @@ export default {
       },
       rules: {
         bannerName: [{ required: true, message: '名称必须填写', trigger: 'change' }],
-        imageUrl: [{ required: true, message: '图片链接必须填写', trigger: 'change' }],
+        imageUrl: [{ required: true, message: '图片必须上传', trigger: 'change' }],
         jumpUrl: [{ required: true, message: '跳转链接必须填写', trigger: 'change' }]
       },
-      pageSize: 5,
-      pageNum: 1,
-      total: -1,
-      dialogFormVisible: false,
-      title: '',
-      isCreate: false
+      bannerPics: []
     }
   },
   computed: {
-    ...mapGetters([
-      'roles'
-    ])
+    ...mapGetters(['roles'])
   },
   created() {
-    this.queryBannerInfos()
+    this.getList()
   },
   methods: {
-    queryBannerInfos() {
-      this.listLoading = true
-      queryBannerInfos({
-        pageNo: this.pageNum,
-        pageSize: this.pageSize
-      }).then((data) => {
-        this.listLoading = false
-        this.bannerInfos = data.data.list
-        this.total = data.data.total
-        this.pageSize = data.data.pageSize
-        this.pageNum = data.data.pageNum
-      }).catch(e => {
-        this.listLoading = false
+    getList() {
+      queryList({
+        pageNo: this.currentPage,
+        pageSize: 10
+      }).then(data => {
+        this.list = data.data.list
+        this.listResult = data.data
       })
     },
-    updateBannerInfo(row) {
-      updateBannerInfo({
+    updateBanner(bannerItem) {
+      editBanner(bannerItem).then(res => {})
+    },
+    handleFilter() {},
+    handleCreate() {
+      this.isAddBanner = true
+      this.editDialogVisible = true
+      this.bannerPics = []
+      this.curBannerItem.isValid = false
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+      console.log(JSON.stringify(this.curBannerItem))
+    },
+    handleSizeChange() {},
+    handleCurrentChange() {
+      this.getList()
+    },
+    uploadPicture(item) {
+      console.log('上传成功=====>' + item)
+      this.curBannerItem.imageUrl = item
+    },
+    uploadPictureRemove(item) {
+      this.curBannerItem.imageUrl = ''
+    },
+    addOrEditItem() {
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          console.log(JSON.stringify(this.curBannerItem))
+          if (this.isAddBanner) {
+            addBanner(this.curBannerItem).then(data => {
+              postMessage('添加成功')
+              this.getList()
+            })
+          } else {
+            editBanner(this.curBannerItem).then(data => {
+              postMessage('修改成功')
+              this.getList()
+            })
+          }
+          this.editDialogVisible = false
+          this.clearCurBannerItem()
+        }
+      })
+    },
+    clearCurBannerItem() {
+      this.curBannerItem = {
+        id: undefined,
+        bannerName: '',
+        isValid: false,
+        jumpUrl: '',
+        imageUrl: ''
+      }
+    },
+    editRow(item) {
+      this.isAddBanner = false
+      this.editDialogVisible = true
+      this.bannerPics = []
+      this.curBannerItem = Object.assign({}, item)
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
+    updateRow(row) {
+      editBanner({
         id: row.id,
         isValid: !row.isValid
       }).then(res => {
@@ -171,84 +257,14 @@ export default {
       }).catch(err => {
         console.log(err)
       })
-    },
-    handleEdit(row) {
-      this.temp = Object.assign({}, row)
-      this.dialogFormVisible = true
-      this.title = '编辑banner'
-      this.isCreate = false
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    handleCreate() {
-      this.temp = {
-        id: undefined,
-        bannerName: '',
-        isValid: false,
-        jumpUrl: '',
-        imageUrl: ''
-      }
-      this.isCreate = true
-      this.dialogFormVisible = true
-      this.title = '添加banner'
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    handleUpdate() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          updateBannerInfo(this.temp)
-            .then(res => {
-              this.$message({
-                message: '编辑成功',
-                type: 'success'
-              })
-              this.dialogFormVisible = false
-              this.queryBannerInfos()
-            }).catch(e => {
-              console.log(e)
-            })
-        }
-      })
-    },
-    handleAdd() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          saveBannerInfo({
-            bannerName: this.temp.bannerName,
-            imageUrl: this.temp.imageUrl,
-            isValid: this.temp.isValid,
-            jumpUrl: this.temp.jumpUrl
-          })
-            .then(() => {
-              this.$message({
-                message: '添加成功',
-                type: 'success'
-              })
-              this.dialogFormVisible = false
-              this.queryBannerInfos()
-            }).catch(e => {
-              console.log(e)
-            })
-        }
-      })
-    },
-    handleCurrentChange(val) {
-      this.pageNum = val
-      this.queryBannerInfos()
     }
   }
 }
 </script>
 
 <style scoped>
-  .tab-container {
-    margin: 30px;
-  }
-
-  .imageUrl {
-    width: 100%;
-  }
+.image-small {
+  width: 150px;
+  height: 80px;
+}
 </style>

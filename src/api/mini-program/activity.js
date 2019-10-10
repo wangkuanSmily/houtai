@@ -1,8 +1,8 @@
 import request from '@/utils/request'
 
-export function queryList(data) {
+export function activityList(data) {
   return request({
-    url: '/product/list',
+    url: '/coupon/list',
     method: 'post',
     data
   })
@@ -14,17 +14,17 @@ export function queryItem(id) {
   })
 }
 
-export function updateItem(data) {
+export function editActivity(data) {
   return request({
-    url: '/product/update',
+    url: '/coupon/update',
     method: 'post',
     data
   })
 }
 
-export function addItem(data) {
+export function addActivity(data) {
   return request({
-    url: '/product/add',
+    url: '/coupon/add',
     method: 'post',
     data
   })
