@@ -64,9 +64,9 @@
         <template slot-scope="scope">
           <el-button type="primary" size="small" @click.native.prevent="editRow(scope.row)">编辑</el-button>
           <el-button
-            type="danger"
+            :type="scope.row.isValid ? 'danger' : 'primary'"
             size="small"
-            @click.native.prevent="disableRow(scope.row)"
+            @click.native.prevent="updateRow(scope.row)"
           >{{ scope.row.isValid?'禁用':'启用' }}</el-button>
         </template>
       </el-table-column>
@@ -83,17 +83,17 @@
     </div>
 
     <el-dialog title="Banner配置" :visible.sync="editDialogVisible">
-      <el-form :model="curBannerItem">
+      <el-form ref="dataForm" :rules="rules" :model="curBannerItem" label-position="left">
         <el-form-item v-if="!isAddBanner" label="id" :label-width="formLabelWidth">
           <el-input v-model="curBannerItem.id" autocomplete="off" :disabled="!isAddBanner" />
         </el-form-item>
-        <el-form-item label="Banner名称" :label-width="formLabelWidth">
+        <el-form-item label="Banner名称" :label-width="formLabelWidth" prop="bannerName">
           <el-input v-model="curBannerItem.bannerName" autocomplete="off" />
         </el-form-item>
         <!-- <el-form-item label="跳转类型" :label-width="formLabelWidth">
           <el-input v-model="curBannerItem.jumpUrl" autocomplete="off" />
         </el-form-item>-->
-        <el-form-item label="跳转链接" :label-width="formLabelWidth">
+        <el-form-item label="跳转链接" :label-width="formLabelWidth" prop="jumpUrl">
           <el-input v-model="curBannerItem.jumpUrl" autocomplete="off" />
         </el-form-item>
         <el-form-item label="是否启用" :label-width="formLabelWidth">
@@ -103,7 +103,7 @@
             inactive-color="#ff4949"
           />
         </el-form-item>
-        <el-form-item label="Banner图片" :label-width="formLabelWidth">
+        <el-form-item label="Banner图片" :label-width="formLabelWidth" prop="imageUrl">
           <pictureupload
             :img-list="bannerPics"
             :limit="1"
@@ -150,7 +150,18 @@ export default {
       listQuery: {
         title: ''
       },
-      curBannerItem: {},
+      curBannerItem: {
+        id: undefined,
+        bannerName: '',
+        isValid: false,
+        jumpUrl: '',
+        imageUrl: ''
+      },
+      rules: {
+        bannerName: [{ required: true, message: '名称必须填写', trigger: 'change' }],
+        imageUrl: [{ required: true, message: '图片必须上传', trigger: 'change' }],
+        jumpUrl: [{ required: true, message: '跳转链接必须填写', trigger: 'change' }]
+      },
       bannerPics: []
     }
   },
@@ -177,9 +188,11 @@ export default {
     handleCreate() {
       this.isAddBanner = true
       this.editDialogVisible = true
-      this.curBannerItem = {}
       this.bannerPics = []
       this.curBannerItem.isValid = false
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
       console.log(JSON.stringify(this.curBannerItem))
     },
     handleSizeChange() {},
@@ -194,21 +207,57 @@ export default {
       this.curBannerItem.imageUrl = ''
     },
     addOrEditItem() {
-      console.log(JSON.stringify(this.curBannerItem))
-      if (this.isAddCoupon) {
-        addBanner(this.curBannerItem).then(data => {
-          postMessage('添加成功')
-          this.getList()
-        })
-      } else {
-        editBanner(this.curBannerItem).then(data => {
-          postMessage('修改成功')
-          this.getList()
-        })
-      }
-      this.editDialogVisible = false
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          console.log(JSON.stringify(this.curBannerItem))
+          if (this.isAddBanner) {
+            addBanner(this.curBannerItem).then(data => {
+              postMessage('添加成功')
+              this.getList()
+            })
+          } else {
+            editBanner(this.curBannerItem).then(data => {
+              postMessage('修改成功')
+              this.getList()
+            })
+          }
+          this.editDialogVisible = false
+          this.clearCurBannerItem()
+        }
+      })
     },
-    editRow(item) {}
+    clearCurBannerItem() {
+      this.curBannerItem = {
+        id: undefined,
+        bannerName: '',
+        isValid: false,
+        jumpUrl: '',
+        imageUrl: ''
+      }
+    },
+    editRow(item) {
+      this.isAddBanner = false
+      this.editDialogVisible = true
+      this.bannerPics = []
+      this.curBannerItem = Object.assign({}, item)
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
+    updateRow(row) {
+      editBanner({
+        id: row.id,
+        isValid: !row.isValid
+      }).then(res => {
+        this.$message({
+          message: '操作成功',
+          type: 'success'
+        })
+        row.isValid = !row.isValid
+      }).catch(err => {
+        console.log(err)
+      })
+    }
   }
 }
 </script>
