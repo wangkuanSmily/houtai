@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function queryBannerInfos(data) {
   return request({
-    url: '/bannerInfo/toShowBannerInfos',
+    url: '/bannerInfo/list',
     method: 'post',
     data
   })
@@ -10,7 +10,7 @@ export function queryBannerInfos(data) {
 
 export function updateBannerInfo(data) {
   return request({
-    url: '/bannerInfo/updateBannerInfo',
+    url: '/bannerInfo/update',
     method: 'post',
     data
   })
@@ -18,7 +18,7 @@ export function updateBannerInfo(data) {
 
 export function saveBannerInfo(data) {
   return request({
-    url: '/bannerInfo/saveBannerInfo',
+    url: '/bannerInfo/add',
     method: 'post',
     data
   })
