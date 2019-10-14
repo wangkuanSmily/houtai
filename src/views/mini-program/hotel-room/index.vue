@@ -90,7 +90,7 @@
     </el-table>
     <el-dialog title="酒店客房配置" :visible.sync="editDialogVisible">
       <el-form ref="dataForm" :rules="rules" :model="currentRoomModal" label-position="left">
-        <el-form-item v-if="!isAddRoomModal" label="id" :label-width="formLabelWidth">
+        <el-form-item v-if="!isAddRoomModal" label="客房id" :label-width="formLabelWidth">
           <el-input v-model="currentRoomModal.id" autocomplete="off" :disabled="!isAddRoomModal" />
         </el-form-item>
         <el-form-item label="客房名称" :label-width="formLabelWidth" prop="bannerName">
@@ -112,12 +112,51 @@
             @removeimg="uploadRoomVideoThumbnailRemove"
           />
         </el-form-item>
+        <el-form-item label="客房banners列表" :label-width="formLabelWidth" prop="roomBanners">
+          <pictureupload
+            :img-list="currentRoomModal.roomBanners ? JSON.parse(currentRoomModal.roomBanners) : []"
+            :limit="15"
+            @uploadimg="uploadRoomBanners"
+            @removeimg="uploadRoomBannersRemove"
+          />
+        </el-form-item>
         <el-form-item label="客房视频" :label-width="formLabelWidth" prop="roomVideo">
           <videoupload
             img-path="hotel-room"
             @uploadSuccess="uploadVideoSuccess"
             @removeVideo="removeVideo"
           />
+        </el-form-item>
+        <el-form-item label="客房面积" :label-width="formLabelWidth" prop="area">
+          <el-input v-model="currentRoomModal.area" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="客房种类" :label-width="formLabelWidth" prop="typeName">
+          <el-input v-model="currentRoomModal.typeName" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="客房总结" :label-width="formLabelWidth" prop="roomSummary">
+          <el-input v-model="currentRoomModal.roomSummary" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="入住人数" :label-width="formLabelWidth" prop="peopleCount">
+          <el-input v-model="currentRoomModal.peopleCount" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="客房描述" :label-width="formLabelWidth" prop="body">
+          <el-input :autosize="{ minRows: 4, maxRows: 8}" type="textarea" v-model="currentRoomModal.body" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="是否可预定" :label-width="formLabelWidth">
+          <el-switch
+            v-model="currentRoomModal.roomCanReserve"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          />
+        </el-form-item>
+        <el-form-item label="客房设施" :label-width="formLabelWidth" prop="roomFacility">
+          <el-input :autosize="{ minRows: 4, maxRows: 8}" type="textarea" v-model="currentRoomModal.roomFacility" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="客房设施列表" :label-width="formLabelWidth" prop="roomFacilitys">
+          <el-input :autosize="{ minRows: 4, maxRows: 8}" type="textarea" v-model="currentRoomModal.roomFacilitys" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="客房图片描述" :label-width="formLabelWidth" prop="roomImageMessages">
+          <el-input :autosize="{ minRows: 4, maxRows: 8}" type="textarea" v-model="currentRoomModal.roomImageMessages" autocomplete="off" />
         </el-form-item>
         <el-form-item label="是否启用" :label-width="formLabelWidth">
           <el-switch
@@ -175,6 +214,7 @@ export default {
         pageNo: this.currentPage,
         pageSize: 10
       }).then(data => {
+        console.log(data.data.list)
         this.list = data.data.list
       })
     },
@@ -198,7 +238,7 @@ export default {
           if (this.isAddRoomModal) {
           } else {
             editItem(this.currentRoomModal).then(data => {
-              postMessage('修改成功')
+              this.$message('修改成功')
               this.getList()
             })
           }
@@ -235,6 +275,14 @@ export default {
     },
     removeVideo() {
       this.currentRoomModal.roomVideo = ''
+    },
+    uploadRoomBanners(item) {
+      let parsedBanners = JSON.parse(this.currentRoomModal.roomBanners)
+      parsedBanners = [...parsedBanners, item]
+      this.currentRoomModal.roomBanners = JSON.stringify(parsedBanners)
+    },
+    uploadRoomBannersRemove(newList) {
+      this.currentRoomModal.roomBanners = JSON.stringify(newList)
     }
   }
 }
