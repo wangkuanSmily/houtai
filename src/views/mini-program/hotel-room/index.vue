@@ -1,5 +1,14 @@
 <template>
   <div class="dashboard-container">
+    <div class="filter-container">
+      <el-button
+        class="filter-item"
+        style="margin-left: 10px;"
+        type="primary"
+        icon="el-icon-edit"
+        @click="handleCreate"
+      >添加</el-button>
+    </div>
     <el-table
       v-loading="listLoading"
       :data="list"
@@ -109,7 +118,7 @@
         </el-form-item>
         <el-form-item label="客房图片" :label-width="formLabelWidth" prop="roomImage">
           <pictureupload
-            :img-list="roomPics"
+            :img-list="currentRoomModal.roomImage ? [...currentRoomModal.roomImage] : []"
             :limit="1"
             @uploadimg="uploadRoomImage"
             @removeimg="uploadRoomImageRemove"
@@ -117,7 +126,7 @@
         </el-form-item>
         <el-form-item label="客房视频缩略图" :label-width="formLabelWidth" prop="roomVideoThumbnail">
           <pictureupload
-            :img-list="videoThumbnails"
+            :img-list="currentRoomModal.roomVideoThumbnail ? [...currentRoomModal.roomVideoThumbnail] : []"
             :limit="1"
             @uploadimg="uploadRoomVideoThumbnail"
             @removeimg="uploadRoomVideoThumbnailRemove"
@@ -125,7 +134,7 @@
         </el-form-item>
         <el-form-item label="客房banners列表" :label-width="formLabelWidth" prop="roomBanners">
           <pictureupload
-            :img-list="currentRoomModal.roomBanners ? JSON.parse(currentRoomModal.roomBanners) : []"
+            :img-list="JSON.parse(currentRoomModal.roomBanners)"
             :limit="15"
             @uploadimg="uploadRoomBanners"
             @removeimg="uploadRoomBannersRemove"
@@ -134,6 +143,7 @@
         <el-form-item label="客房视频" :label-width="formLabelWidth" prop="roomVideo">
           <videoupload
             img-path="hotel-room"
+            :video-src-url="currentRoomModal.roomVideo"
             @uploadSuccess="uploadVideoSuccess"
             @removeVideo="removeVideo"
           />
@@ -151,7 +161,7 @@
           <el-input v-model="currentRoomModal.peopleCount" autocomplete="off" />
         </el-form-item>
         <el-form-item label="客房描述" :label-width="formLabelWidth" prop="body">
-          <el-input :autosize="{ minRows: 4, maxRows: 8}" type="textarea" v-model="currentRoomModal.body" autocomplete="off" />
+          <el-input v-model="currentRoomModal.body" :autosize="{ minRows: 4, maxRows: 8}" type="textarea" autocomplete="off" />
         </el-form-item>
         <el-form-item label="是否可预定" :label-width="formLabelWidth">
           <el-switch
@@ -161,13 +171,13 @@
           />
         </el-form-item>
         <el-form-item label="客房设施" :label-width="formLabelWidth" prop="roomFacility">
-          <el-input :autosize="{ minRows: 4, maxRows: 8}" type="textarea" v-model="currentRoomModal.roomFacility" autocomplete="off" />
+          <el-input v-model="currentRoomModal.roomFacility" :autosize="{ minRows: 4, maxRows: 8}" type="textarea" autocomplete="off" />
         </el-form-item>
         <el-form-item label="客房设施列表" :label-width="formLabelWidth" prop="roomFacilitys">
-          <el-input :autosize="{ minRows: 4, maxRows: 8}" type="textarea" v-model="currentRoomModal.roomFacilitys" autocomplete="off" />
+          <el-input v-model="currentRoomModal.roomFacilitys" :autosize="{ minRows: 4, maxRows: 8}" type="textarea" autocomplete="off" />
         </el-form-item>
         <el-form-item label="客房图片描述" :label-width="formLabelWidth" prop="roomImageMessages">
-          <el-input :autosize="{ minRows: 4, maxRows: 8}" type="textarea" v-model="currentRoomModal.roomImageMessages" autocomplete="off" />
+          <el-input v-model="currentRoomModal.roomImageMessages" :autosize="{ minRows: 4, maxRows: 8}" type="textarea" autocomplete="off" />
         </el-form-item>
         <el-form-item label="是否启用" :label-width="formLabelWidth">
           <el-switch
@@ -187,7 +197,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { queryList, editItem } from '@/api/mini-program/room'
+import { queryList, editItem, addItem } from '@/api/mini-program/room'
 import pictureupload from '@/components/PictureUpload'
 import videoupload from '@/components/VideoUpload'
 
@@ -204,7 +214,9 @@ export default {
       rules: {},
       listLoading: false,
       editDialogVisible: false,
-      currentRoomModal: {},
+      currentRoomModal: {
+        roomBanners: '[]'
+      },
       isAddRoomModal: false,
       formLabelWidth: '120px',
       roomPics: [], // 客房图片
@@ -231,6 +243,18 @@ export default {
         this.listResult = data.data
       })
     },
+    handleCreate() {
+      this.isAddRoomModal = true
+      this.editDialogVisible = true
+      this.roomPics = []
+      this.videoThumbnails = []
+      this.currentRoomModal = {
+        roomBanners: '[]'
+      }
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
     updateRow(row) {
       editItem({
         id: row.id,
@@ -249,6 +273,11 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           if (this.isAddRoomModal) {
+            console.log(this.currentRoomModal)
+            addItem(this.currentRoomModal).then(() => {
+              this.$message('添加成功')
+              this.getList()
+            })
           } else {
             editItem(this.currentRoomModal).then(data => {
               this.$message('修改成功')
@@ -256,12 +285,8 @@ export default {
             })
           }
         }
-        this.editDialogVisible = false
-        this.clearCurrentRoomModal()
       })
-    },
-    clearCurrentRoomModal() {
-      this.currentRoomModal = {}
+      this.editDialogVisible = false
     },
     editRow(item) {
       this.isAddRoomModal = false
@@ -294,11 +319,13 @@ export default {
       this.currentRoomModal.roomVideo = ''
     },
     uploadRoomBanners(item) {
+      console.log(item)
       let parsedBanners = JSON.parse(this.currentRoomModal.roomBanners)
       parsedBanners = [...parsedBanners, item]
       this.currentRoomModal.roomBanners = JSON.stringify(parsedBanners)
     },
     uploadRoomBannersRemove(newList) {
+      console.log(newList)
       this.currentRoomModal.roomBanners = JSON.stringify(newList)
     }
   }

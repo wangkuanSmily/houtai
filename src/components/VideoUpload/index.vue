@@ -47,6 +47,10 @@ export default {
     imgPath: {
       type: String,
       default: 'funat-server'
+    },
+    videoSrcUrl: {
+      type: String,
+      default: ''
     }
   },
   data() {
@@ -57,7 +61,6 @@ export default {
           this.imgPath,
       videoUploadPercent: 0,
       isUploading: false,
-      videoSrcUrl: '',
       dialogImageUrl: '',
       dialogVisible: false
     }
