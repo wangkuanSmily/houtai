@@ -88,23 +88,28 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog title="Banner配置" :visible.sync="editDialogVisible">
+    <el-dialog title="酒店客房配置" :visible.sync="editDialogVisible">
       <el-form ref="dataForm" :rules="rules" :model="currentRoomModal" label-position="left">
         <el-form-item v-if="!isAddRoomModal" label="id" :label-width="formLabelWidth">
           <el-input v-model="currentRoomModal.id" autocomplete="off" :disabled="!isAddRoomModal" />
         </el-form-item>
-        <el-form-item label="Banner名称" :label-width="formLabelWidth" prop="bannerName">
-          <el-input v-model="currentRoomModal.bannerName" autocomplete="off" />
+        <el-form-item label="客房名称" :label-width="formLabelWidth" prop="bannerName">
+          <el-input v-model="currentRoomModal.title" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="客房图片" :label-width="formLabelWidth" prop="imageUrl">
+          <pictureupload
+            :img-list="roomPics"
+            :limit="1"
+            @uploadimg="uploadPicture"
+            @removeimg="uploadPictureRemove"
+          />
         </el-form-item>
         <!-- <el-form-item label="跳转类型" :label-width="formLabelWidth">
           <el-input v-model="curBannerItem.jumpUrl" autocomplete="off" />
         </el-form-item>-->
-        <el-form-item label="跳转链接" :label-width="formLabelWidth" prop="jumpUrl">
-          <el-input v-model="currentRoomModal.jumpUrl" autocomplete="off" />
-        </el-form-item>
         <el-form-item label="是否启用" :label-width="formLabelWidth">
           <el-switch
-            v-model="currentRoomModal.isValid"
+            v-model="currentRoomModal.valid"
             active-color="#13ce66"
             inactive-color="#ff4949"
           />
@@ -121,9 +126,13 @@
 <script>
 import { mapGetters } from 'vuex'
 import { queryList, editItem } from '@/api/mini-program/room'
+import pictureupload from '@/components/PictureUpload'
 
 export default {
   name: 'Home',
+  components: {
+    pictureupload
+  },
   data() {
     return {
       currentPage: 1,
@@ -133,7 +142,8 @@ export default {
       editDialogVisible: false,
       currentRoomModal: {},
       isAddRoomModal: false,
-      formLabelWidth: '120px'
+      formLabelWidth: '120px',
+      roomPics: [] // 客房图片
     }
   },
   computed: {
@@ -168,7 +178,22 @@ export default {
       })
     },
     addOrEditItem(item) {
-
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          if (this.isAddRoomModal) {
+          } else {
+            editItem(this.currentRoomModal).then(data => {
+              postMessage('修改成功')
+              this.getList()
+            })
+          }
+        }
+        this.editDialogVisible = false
+        this.clearCurrentRoomModal()
+      })
+    },
+    clearCurrentRoomModal() {
+      this.currentRoomModal = {}
     },
     editRow(item) {
       this.isAddRoomModal = false
@@ -177,6 +202,12 @@ export default {
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
+    },
+    uploadPicture(item) {
+      this.currentRoomModal.roomImage = item
+    },
+    uploadPictureRemove() {
+      this.currentRoomModal.roomImage = ''
     }
   }
 }
