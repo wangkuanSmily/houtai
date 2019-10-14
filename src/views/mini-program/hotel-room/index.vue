@@ -106,10 +106,17 @@
         </el-form-item>
         <el-form-item label="客房视频缩略图" :label-width="formLabelWidth" prop="roomVideoThumbnail">
           <pictureupload
-            :img-list="roomPics"
+            :img-list="videoThumbnails"
             :limit="1"
             @uploadimg="uploadRoomVideoThumbnail"
             @removeimg="uploadRoomVideoThumbnailRemove"
+          />
+        </el-form-item>
+        <el-form-item label="客房视频" :label-width="formLabelWidth" prop="roomVideo">
+          <videoupload
+            img-path="hotel-room"
+            @uploadSuccess="uploadVideoSuccess"
+            @removeVideo="removeVideo"
           />
         </el-form-item>
         <el-form-item label="是否启用" :label-width="formLabelWidth">
@@ -132,11 +139,13 @@
 import { mapGetters } from 'vuex'
 import { queryList, editItem } from '@/api/mini-program/room'
 import pictureupload from '@/components/PictureUpload'
+import videoupload from '@/components/VideoUpload'
 
 export default {
   name: 'Home',
   components: {
-    pictureupload
+    pictureupload,
+    videoupload
   },
   data() {
     return {
@@ -148,7 +157,8 @@ export default {
       currentRoomModal: {},
       isAddRoomModal: false,
       formLabelWidth: '120px',
-      roomPics: [] // 客房图片
+      roomPics: [], // 客房图片
+      videoThumbnails: []
     }
   },
   computed: {
@@ -219,6 +229,12 @@ export default {
     },
     uploadRoomVideoThumbnailRemove() {
       this.currentRoomModal.roomVideoThumbnail = ''
+    },
+    uploadVideoSuccess(item) {
+      this.currentRoomModal.roomVideo = item
+    },
+    removeVideo() {
+      this.currentRoomModal.roomVideo = ''
     }
   }
 }
