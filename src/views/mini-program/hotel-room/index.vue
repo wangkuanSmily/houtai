@@ -96,17 +96,22 @@
         <el-form-item label="客房名称" :label-width="formLabelWidth" prop="bannerName">
           <el-input v-model="currentRoomModal.title" autocomplete="off" />
         </el-form-item>
-        <el-form-item label="客房图片" :label-width="formLabelWidth" prop="imageUrl">
+        <el-form-item label="客房图片" :label-width="formLabelWidth" prop="roomImage">
           <pictureupload
             :img-list="roomPics"
             :limit="1"
-            @uploadimg="uploadPicture"
-            @removeimg="uploadPictureRemove"
+            @uploadimg="uploadRoomImage"
+            @removeimg="uploadRoomImageRemove"
           />
         </el-form-item>
-        <!-- <el-form-item label="跳转类型" :label-width="formLabelWidth">
-          <el-input v-model="curBannerItem.jumpUrl" autocomplete="off" />
-        </el-form-item>-->
+        <el-form-item label="客房视频缩略图" :label-width="formLabelWidth" prop="roomVideoThumbnail">
+          <pictureupload
+            :img-list="roomPics"
+            :limit="1"
+            @uploadimg="uploadRoomVideoThumbnail"
+            @removeimg="uploadRoomVideoThumbnailRemove"
+          />
+        </el-form-item>
         <el-form-item label="是否启用" :label-width="formLabelWidth">
           <el-switch
             v-model="currentRoomModal.valid"
@@ -203,11 +208,17 @@ export default {
         this.$refs['dataForm'].clearValidate()
       })
     },
-    uploadPicture(item) {
+    uploadRoomImage(item) {
       this.currentRoomModal.roomImage = item
     },
-    uploadPictureRemove() {
+    uploadRoomImageRemove() {
       this.currentRoomModal.roomImage = ''
+    },
+    uploadRoomVideoThumbnail(item) {
+      this.currentRoomModal.roomVideoThumbnail = item
+    },
+    uploadRoomVideoThumbnailRemove() {
+      this.currentRoomModal.roomVideoThumbnail = ''
     }
   }
 }
