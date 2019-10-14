@@ -88,6 +88,33 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-dialog title="Banner配置" :visible.sync="editDialogVisible">
+      <el-form ref="dataForm" :rules="rules" :model="currentRoomModal" label-position="left">
+        <el-form-item v-if="!isAddRoomModal" label="id" :label-width="formLabelWidth">
+          <el-input v-model="currentRoomModal.id" autocomplete="off" :disabled="!isAddRoomModal" />
+        </el-form-item>
+        <el-form-item label="Banner名称" :label-width="formLabelWidth" prop="bannerName">
+          <el-input v-model="currentRoomModal.bannerName" autocomplete="off" />
+        </el-form-item>
+        <!-- <el-form-item label="跳转类型" :label-width="formLabelWidth">
+          <el-input v-model="curBannerItem.jumpUrl" autocomplete="off" />
+        </el-form-item>-->
+        <el-form-item label="跳转链接" :label-width="formLabelWidth" prop="jumpUrl">
+          <el-input v-model="currentRoomModal.jumpUrl" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="是否启用" :label-width="formLabelWidth">
+          <el-switch
+            v-model="currentRoomModal.isValid"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button size="small" @click="editDialogVisible = false">取 消</el-button>
+        <el-button size="small" type="primary" @click="addOrEditItem">{{ isAddRoomModal ? '新 增' : '确 定' }}</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -101,7 +128,12 @@ export default {
     return {
       currentPage: 1,
       list: [],
-      listLoading: false
+      rules: {},
+      listLoading: false,
+      editDialogVisible: false,
+      currentRoomModal: {},
+      isAddRoomModal: false,
+      formLabelWidth: '120px'
     }
   },
   computed: {
@@ -133,6 +165,17 @@ export default {
         row.valid = !row.valid
       }).catch(err => {
         console.log(err)
+      })
+    },
+    addOrEditItem(item) {
+
+    },
+    editRow(item) {
+      this.isAddRoomModal = false
+      this.editDialogVisible = true
+      this.currentRoomModal = Object.assign({}, item)
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
       })
     }
   }
