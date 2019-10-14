@@ -37,7 +37,7 @@
           <span>{{ scope.row.area }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="客房种类">
+      <el-table-column align="center" min-width="100px" label="客房种类">
         <template slot-scope="scope">
           <span>{{ scope.row.typeName }}</span>
         </template>
@@ -72,19 +72,19 @@
           <span>{{ scope.row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="是否启用">
+      <el-table-column align="center" label="是否可用">
         <template slot-scope="scope">
-          <span>{{ scope.row.isValid ? "启用" : "禁用" }}</span>
+          <span>{{ scope.row.valid ? "已启用" : "已禁用" }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
           <el-button type="primary" size="small" @click.native.prevent="editRow(scope.row)">编辑</el-button>
           <el-button
-            :type="scope.row.isValid ? 'danger' : 'primary'"
+            :type="scope.row.valid ? 'danger' : 'primary'"
             size="small"
             @click.native.prevent="updateRow(scope.row)"
-          >{{ scope.row.isValid?'禁用':'启用' }}</el-button>
+          >{{ scope.row.valid ? '禁用' : '启用' }}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -93,7 +93,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { queryList } from '@/api/mini-program/room'
+import { queryList, editItem } from '@/api/mini-program/room'
 
 export default {
   name: 'Home',
@@ -119,6 +119,20 @@ export default {
         pageSize: 10
       }).then(data => {
         this.list = data.data.list
+      })
+    },
+    updateRow(row) {
+      editItem({
+        id: row.id,
+        valid: !row.valid
+      }).then(() => {
+        this.$message({
+          message: '操作成功',
+          type: 'success'
+        })
+        row.valid = !row.valid
+      }).catch(err => {
+        console.log(err)
       })
     }
   }
