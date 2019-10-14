@@ -88,6 +88,17 @@
         </template>
       </el-table-column>
     </el-table>
+    <div class="block">
+      <el-pagination
+        :current-page.sync="currentPage"
+        :page-size="10"
+        layout="prev, pager, next, jumper"
+        :total="listResult.total"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
+    </div>
+
     <el-dialog title="酒店客房配置" :visible.sync="editDialogVisible">
       <el-form ref="dataForm" :rules="rules" :model="currentRoomModal" label-position="left">
         <el-form-item v-if="!isAddRoomModal" label="客房id" :label-width="formLabelWidth">
@@ -197,7 +208,8 @@ export default {
       isAddRoomModal: false,
       formLabelWidth: '120px',
       roomPics: [], // 客房图片
-      videoThumbnails: []
+      videoThumbnails: [],
+      listResult: {}
     }
   },
   computed: {
@@ -216,6 +228,7 @@ export default {
       }).then(data => {
         console.log(data.data.list)
         this.list = data.data.list
+        this.listResult = data.data
       })
     },
     updateRow(row) {
@@ -257,6 +270,10 @@ export default {
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
+    },
+    handleSizeChange() {},
+    handleCurrentChange() {
+      this.getList()
     },
     uploadRoomImage(item) {
       this.currentRoomModal.roomImage = item
