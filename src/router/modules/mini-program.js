@@ -118,6 +118,20 @@ const tableRouter = [
         }
       }
     ]
-  }
-]
+  },
+  {
+    path: '/qrcode',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/mini-program/qrcode/index'),
+        name: 'qrcode',
+        meta: {
+          title: '小程序码',
+          icon: 'table'
+        }
+      }
+    ]
+  }]
 export default tableRouter
