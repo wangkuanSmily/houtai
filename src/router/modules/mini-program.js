@@ -68,12 +68,19 @@ const tableRouter = [
   {
     path: '/map',
     component: Layout,
+    meta: { icon: 'tree', title: '地图数据' },
     children: [
       {
-        path: 'index',
-        component: () => import('@/views/mini-program/map/index'),
+        path: 'poi',
+        component: () => import('@/views/mini-program/map/poi/index'),
         name: 'map',
-        meta: { icon: 'message', title: '地图数据' }
+        meta: { icon: 'message', title: 'POI数据' }
+      },
+      {
+        path: 'poigroup',
+        component: () => import('@/views/mini-program/map/poigroup/index'),
+        name: 'map',
+        meta: { icon: 'message', title: 'POI分组' }
       }
     ]
   },
