@@ -1,24 +1,24 @@
 import request from '@/utils/request'
 
-export function queryList(data) {
+export function addQRCodeConfig(data) {
   return request({
-    url: '/facilities/list',
-    method: 'post',
-    data
+    url: '/qr/generateQRCode',
+    method: 'get',
+    params: data
   })
 }
 
-export function editItem(data) {
+export function fetchQRCodeConfig(data) {
   return request({
-    url: '/facilities/update',
-    method: 'post',
-    data
+    url: '/qr/getQRCodeConfig',
+    method: 'get',
+    params: data
   })
 }
 
-export function addItem(data) {
+export function fetchQRCodeConfigs(data) {
   return request({
-    url: '/facilities/add',
+    url: '/qr/toShowQRCodeList',
     method: 'post',
     data
   })
